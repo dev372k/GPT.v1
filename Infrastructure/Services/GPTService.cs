@@ -43,6 +43,8 @@ namespace Infrastructure.Services
                     httpReq.Content = _motivationService.General();
                 else if(type == enMotivationType.morning)
                     httpReq.Content = _motivationService.Morning();
+                else if(type == enMotivationType.evening)
+                    httpReq.Content = _motivationService.Evening();
 
                 using HttpResponseMessage httpResponse = await httpClient.SendAsync(httpReq);
 

@@ -100,6 +100,58 @@ namespace Infrastructure.Services
 
             return formData;
         }
+        
+        public MultipartFormDataContent Evening()
+        {
+            var reflections = DailyReflection.usersReflections;
+            var formData = new MultipartFormDataContent();
+
+            var batchPayloadsBuilder = new StringBuilder();
+
+            foreach (var (reflection, index) in reflections.Select((reflection, idx) => (reflection, idx)))
+            {
+                var batchPayload = new
+                {
+                    custom_id = $"request-{DateTime.Now.Ticks}",
+                    method = "POST",
+                    url = "/v1/chat/completions",
+                    body = new
+                    {
+                        model = "gpt-3.5-turbo-0125",
+                        messages = new[]
+                        {
+                        new {
+                            role = "system",
+                            content = "You are a helpful assistant tasked with providing a personalized evening motivation message." +
+                            " Use the user's detailed daily reflection to craft a message that is inspiring and relevant. Consider:\n" +
+                            "- Reflecting on the user's most enjoyable and challenging parts of the day to acknowledge their efforts and experiences.\n" +
+                            "- Addressing their overall feelings and frequent emotions to provide empathy and support.\n" +
+                            "- Highlighting new learnings and things they are grateful for to foster a positive mindset and growth.\n" +
+                            "- Using emotional labels to validate their feelings and offer encouragement or advice as needed."
+                        },
+                        new {
+                            role = "user",
+                            content = $"Generate an evening motivation message using the reflection data: {JsonSerializer.Serialize(reflection)}"
+                        }
+                    },
+                        max_tokens = 1000
+                    }
+                };
+
+                string serializedObject = JsonSerializer.Serialize(batchPayload);
+
+                batchPayloadsBuilder.AppendLine(serializedObject);
+            }
+
+            var content = new ByteArrayContent(Encoding.UTF8.GetBytes(batchPayloadsBuilder.ToString()));
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            formData.Add(content, "file", "batch.json");
+
+            formData.Add(new StringContent("batch"), "purpose");
+
+            return formData;
+        }
 
     }
 }

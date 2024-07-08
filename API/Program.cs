@@ -67,6 +67,13 @@ app.UseMiddleware<ExceptionMiddleware>();
 //        .EveryMinute();
 //});
 
+//app.Services.UseScheduler(scheduler =>
+//{
+//    scheduler.Schedule<EveningScheduler>()
+//        //.Cron(builder.Configuration.GetSection("CronExpressions:CreateBatch").Value); 
+//        .EveryMinute();
+//});
+
 app.Services.UseScheduler(scheduler =>
 {
     scheduler.Schedule<CheckStatusScheduler>()

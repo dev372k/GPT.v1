@@ -9,6 +9,7 @@ namespace Domain.Enumerations
     public enum enMotivationType
     {
         general,
-        morning
+        morning,
+        evening
     }
 }
